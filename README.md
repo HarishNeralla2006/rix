@@ -1,3 +1,6 @@
+Try Now : https://rixbuild.vercel.app/
+
+
 Rix is an AI-first project assistant that turns a short project brief into ready-to-use development artifacts so teams can move from idea to execution faster. Enter a description for a software or hardware project and Rix generates a professional PRD, recommended technology stack, UI mockups, architecture diagrams, schematics/parts lists (for hardware), and step‑by‑step build guides. All results are saved to a lightweight dashboard where you can review, edit, and export Markdown, JSON, and images.
 
 Why it matters
