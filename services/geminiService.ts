@@ -1,10 +1,14 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { getApiKey } from './apiKeyManager';
 import type { HardwareProjectDetails, SoftwareProjectDetails } from '../types';
 
 // Helper to create a configured AI client. Throws if the key is missing.
 const getAiClient = () => {
-  // The API key is expected to be securely set in the environment variables.
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("Gemini API key is not set. Please add your key in the settings.");
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 const generateJson = async <T>(prompt: string, schema: any): Promise<T | null> => {
@@ -22,7 +26,8 @@ const generateJson = async <T>(prompt: string, schema: any): Promise<T | null> =
     return JSON.parse(jsonText) as T;
   } catch (error) {
     console.error("Error generating JSON content from Gemini:", error);
-    return null;
+    // Re-throw to be handled by the caller, which can display a specific message
+    throw error;
   }
 };
 
@@ -36,7 +41,7 @@ const generateText = async (prompt: string): Promise<string> => {
     return response.text;
   } catch (error) {
     console.error("Error generating text content from Gemini:", error);
-    return "Error generating content.";
+    throw error;
   }
 };
 
@@ -60,7 +65,7 @@ const generateImage = async (prompt: string): Promise<string | null> => {
     return null;
   } catch (error) {
     console.error("Error generating image from Gemini:", error);
-    return null;
+    throw error;
   }
 };
 
@@ -99,7 +104,7 @@ export const generateSoftwareProjectAssets = async (description: string): Promis
     };
   } catch (error) {
     console.error("Failed to generate software project assets:", error);
-    return null;
+    throw error;
   }
 };
 
@@ -126,6 +131,6 @@ export const generateHardwareProjectAssets = async (description: string): Promis
     };
   } catch (error) {
     console.error("Failed to generate hardware project assets:", error);
-    return null;
+    throw error;
   }
 };
