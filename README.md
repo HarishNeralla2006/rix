@@ -1,0 +1,2 @@
+# rix
+Rix is a comprehensive project development platform that revolutionizes how individuals and teams approach new project creation. The website serves as an intelligent project assistant that automatically generates tailored development resources based on project type - whether software or hardware.
