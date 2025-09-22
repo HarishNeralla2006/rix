@@ -12,20 +12,41 @@ import HardwareIcon from './icons/HardwareIcon';
 
 // A foolproof function to extract a string message from any error type, using JSON.stringify as a fallback.
 const getErrorMessage = (error: unknown): string => {
-    if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
-        return (error as { message: string }).message;
-    }
+    let message: string;
+    
+    // Extract the primary message string from the error
     if (error instanceof Error) {
-        return error.message;
+        message = error.message;
+    } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        message = (error as { message: string }).message;
+    } else if (typeof error === 'string') {
+        message = error;
+    } else {
+         try {
+            return `An unexpected error occurred. Details: ${JSON.stringify(error, null, 2)}`;
+        } catch {
+            return "An un-serializable, unexpected error occurred. Please check the developer console.";
+        }
     }
-    if (typeof error === 'string') {
-        return error;
-    }
+    
+    // Try to parse the message as JSON for specific API errors
     try {
-        return `An unexpected error occurred. Details: ${JSON.stringify(error, null, 2)}`;
-    } catch {
-        return "An un-serializable, unexpected error occurred. Please check the developer console.";
+        const parsed = JSON.parse(message);
+        if (parsed?.error?.message) {
+            const apiMessage = parsed.error.message as string;
+             if (apiMessage.includes("Imagen API is only accessible to billed users")) {
+                return "Image Generation Failed: The Imagen API requires a Google Cloud project with billing enabled. Please ensure your API key is associated with a billed account.\n\nYou can set up billing in your Google Cloud Console.";
+            }
+            if (apiMessage.includes("API key not valid")) {
+                return "Authentication Error: The provided Gemini API key is not valid. Please check your key in Settings and try again.";
+            }
+            return `API Error: ${apiMessage}`;
+        }
+    } catch (e) {
+        // Not a JSON error message. The original message is fine.
     }
+    
+    return message; // Return the original message if it's not a specific, parsable API error
 };
 
 // Helper function to convert a base64 data URL to a Blob
